@@ -104,20 +104,62 @@ SELECT * FROM vw_Fact_Sales;
 4. **UI/UX Design Overhaul:** Designed a modern, clean light-theme SaaS interface featuring container-based card layouts, drop shadows, and visual hierarchy.
 
 ---
+## 🗄️ Data Modeling & Relational Architecture
+Project Atlas utilizes a robust **Star Schema** to ensure optimal query performance, rapid filter propagation, and seamless cross-visualization behavior.
 
-## 💻 Core DAX Formulas
-To ensure clean data handling and proper chronological sorting inside Power BI, custom DAX was implemented:
+### 1. Schema Structure
+*   **Fact Table (`Fact_Sales`):** The transactional grain of the business. Each row represents an individual order line item containing foreign keys (`CustomerID`, `ProductID`), core numerical metrics (`SalesAmount`, `ProfitAmount`, `Quantity`, `DiscountAmount`), and calculated performance fields.
+*   **Dimension Tables (`Dim_Customer`, `Dim_Product`, `Dim_Date`):** 
+    *   `Dim_Customer`: Houses unique customer records and segmentation data (Consumer, Corporate, Home Office).
+    *   `Dim_Product`: Houses unique product records, categories, and sub-categories.
+    *   `Dim_Date`: A dedicated continuous calendar table ensuring all time-intelligence calculations (`SAMEPERIODLASTYEAR`, running totals) function without gaps.
 
+### 2. Relationship Cardinality & Filter Direction
+*   **`Dim_Date` (1) $\to$ `Fact_Sales` (*):** Connected via `Date` to `OrderDate` with a 1-to-Many cardinality and a Single (one-way) filter direction flowing from the calendar dimension down to the transactions.
+*   **`Dim_Customer` (1) $\to$ `Fact_Sales` (*):** Connected via `CustomerID` with a 1-to-Many cardinality and Single filter direction, ensuring customer segments filter sales accurately.
+*   **`Dim_Product` (1) $\to$ `Fact_Sales` (*):** Connected via `ProductID` with a 1-to-Many cardinality and Single filter direction to drive the Top N / Bottom N product rankings cleanly.
+
+---
+
+## 💻 Core DAX Formulas & Time Intelligence
+Custom DAX measures and calculated columns were implemented to handle calculations, proper chronological sorting, and time intelligence inside Power BI:
+
+### 1. Calendar Dimension & Chronological Sorting Columns
 *   **Extracting Month Names as Text:**
     ```dax
     Month = FORMAT(Dim_Date[Date], "MMMM")
     ```
-*   **Creating a Chronological Sort Index:**
-    Because text-based months sort alphabetically by default, a numeric helper column was created to enforce proper calendar sequencing:
+*   **Creating a Chronological Month Number Index:**
     ```dax
     Month Number = MONTH(Dim_Date[Date])
     ```
-    *(Note: This numeric column was applied via **Sort by column** on the `Month` text attribute).*
+    *(Note: Applied via **Sort by column** in Power BI on the `Month` text attribute).*
+
+*   **Extracting Year:**
+    ```dax
+    Year = YEAR(Dim_Date[Date])
+    ```
+
+*   **Extracting Quarter:**
+    ```dax
+    Quarter = CONCATENATE("Q", QUARTER(Dim_Date[Date]))
+    ```
+
+### 2. Core Business Measures (DAX)
+*   **Total Sales (Revenue):**
+    ```dax
+    Total Sales = SUM(Fact_Sales[SalesAmount])
+    ```
+
+*   **Previous Year Sales (YoY Time Intelligence):**
+    ```dax
+    Previous Year Sales = CALCULATE([Total Sales], SAMEPERIODLASTYEAR(Dim_Date[Date]))
+    ```
+
+*   **Year-over-Year (YoY) Growth Percentage:**
+    ```dax
+    YoY Growth % = DIVIDE([Total Sales] - [Previous Year Sales], [Previous Year Sales], 0)
+    ```
 
 ---
 
@@ -125,7 +167,7 @@ To ensure clean data handling and proper chronological sorting inside Power BI, 
 
 ### 1. Executive Summary Cards (Top Banner)
 *   **Metric:** Total Sales & Year-over-Year (YoY) Growth %.
-*   **Business Reading:** Gives leadership an instant baseline of overall financial health and annual trajectory before they dive into granular filters.
+*   **Business Reading:** Gives leadership an instant baseline of overall financial health and annual trajectory before diving into granular filters.
 
 ### 2. Revenue Performance vs. Previous Year (Line Chart)
 *   **Setup:** X-axis mapped to chronological months; Y-axis plots dual lines for current year revenue vs. previous year baseline.
