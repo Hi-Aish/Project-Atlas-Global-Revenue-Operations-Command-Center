@@ -1,6 +1,10 @@
 # Project Atlas Global Revenue & Operations Command Center
 
+### 🖼️ Dashboard Preview (Static)
 <img width="1326" height="750" alt="image" src="https://github.com/user-attachments/assets/264408e4-84e4-494e-8b9c-a1bdcfb1d4e2" />
+
+### 📊 Interactive Demo 
+<img width="1304" height="740" alt="power BI" src="https://github.com/user-attachments/assets/8b0686f6-3edc-4ab5-bd87-770996c77608" />
 
 An enterprise-grade, interactive Power BI dashboard designed to provide stakeholders with an instant 10-second executive summary of revenue health, product performance, and customer segmentation. Built following modern SaaS UI/UX design principles to support data-driven decision-making.
 
