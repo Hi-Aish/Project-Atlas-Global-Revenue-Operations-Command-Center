@@ -82,4 +82,3 @@ Custom DAX measures and calculated columns were implemented to handle calculatio
 *   **Reduced Decision Latency:** Condensed thousands of rows of sales data into an interactive, 10-second executive overview.
 *   **Enhanced Interactivity:** Integrated synced dropdown slicers for Year, Month, and Quarter for dynamic data exploration.
 *   **Portfolio Ready:** Demonstrated full-stack competency in SQL data transformation, relational database architecture, DAX modeling, and professional UI/UX design.
-*   
